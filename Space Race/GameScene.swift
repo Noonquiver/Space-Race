@@ -13,8 +13,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var player: SKSpriteNode!
     var scoreLabel: SKLabelNode!
     var possibleEnemies = ["ball", "hammer", "tv"]
+    var enemiesSpawned = 0
     var gameTimer: Timer?
     var isGameOver = false
+    var timeInterval = 1.0
     var score = 0 {
         didSet {
             scoreLabel.text = "Score: \(score)"
@@ -46,7 +48,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         physicsWorld.gravity = .zero
         physicsWorld.contactDelegate = self
         
-        gameTimer = Timer.scheduledTimer(timeInterval: 0.35, target: self, selector: #selector(createEnemy), userInfo: nil, repeats: true)
+        gameTimer = Timer.scheduledTimer(timeInterval: timeInterval, target: self, selector: #selector(createEnemy), userInfo: nil, repeats: true)
     }
     
     @objc func createEnemy() {
@@ -62,6 +64,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         sprite.physicsBody?.angularVelocity = 5
         sprite.physicsBody?.linearDamping = 0
         sprite.physicsBody?.angularDamping = 0
+        
+        enemiesSpawned += 1
+        
+        if enemiesSpawned % 20 == 0 {
+            gameTimer?.invalidate()
+            timeInterval -= 1
+            gameTimer = Timer.scheduledTimer(timeInterval: timeInterval, target: self, selector: #selector(createEnemy), userInfo: nil, repeats: true)
+        }
     }
     
     override func update(_ currentTime: TimeInterval) {
